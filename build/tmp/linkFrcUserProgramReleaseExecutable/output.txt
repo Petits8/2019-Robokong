@@ -1,0 +1,4 @@
+See file:///D:/c++%20Projects/Robocong-2019-Git/2019-Robokong/build/tmp/linkFrcUserProgramReleaseExecutable/output.txt for all output for linkFrcUserProgramReleaseExecutable.
+linking frcUserProgram successful.
+
+Finished linkFrcUserProgramReleaseExecutable, see full log file:///D:/c++%20Projects/Robocong-2019-Git/2019-Robokong/build/tmp/linkFrcUserProgramReleaseExecutable/output.txt.
