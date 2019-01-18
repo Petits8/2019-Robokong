@@ -16,6 +16,7 @@
 #include <Drive/DifferentialDrive.h>
 #include <DriverControl.h>
 #include <CameraServer.h>
+#include <VisionProcessing.h>
 
 #define LIFTMOTOR 4
 
@@ -27,10 +28,13 @@ frc::Spark RightRearMotor(3);
 frc::SpeedControllerGroup LeftMotors(LeftFrontMotor, LeftRearMotor);
 frc::SpeedControllerGroup RightMotors(RightFrontMotor, RightRearMotor);
 
+frc::Spark YawCameraController(5);
+frc::Spark PitchCameraController(6);
+
 frc::DifferentialDrive m_robotDrive{LeftMotors, RightMotors};
 
 EncoderPair *pEncoderPair = new EncoderPair(4, 5, 2, 3);
-DriverControl *pDriverControl = new DriverControl(false);
+DriverControl *pDriverControl = new DriverControl(true);
 
 frc::Spark *Lift = new frc::Spark(LIFTMOTOR);
 
@@ -42,12 +46,15 @@ Robot::Robot() {
 }
 
 void Robot::RobotInit() {
-	m_chooser.AddDefault(kAutoNameDefault, kAutoNameDefault);
-	m_chooser.AddObject(kAutoNameCustom, kAutoNameCustom);
+	//Vision Processing will be done on the Raspberry PI 2
+	//m_chooser.AddDefault(kAutoNameDefault, kAutoNameDefault);
+	//m_chooser.AddObject(kAutoNameCustom, kAutoNameCustom);
 	frc::SmartDashboard::PutData("Auto Modes", &m_chooser);
 
-	frc::CameraServer::GetInstance()->StartAutomaticCapture(0);
-  	frc::CameraServer::GetInstance()->StartAutomaticCapture(1);
+	
+
+	std::thread visionThread(VisionThread);
+    visionThread.detach();
 
 }
 
@@ -84,16 +91,23 @@ void Robot::OperatorControl() {
 	char buf[1024];
 	buf[0] = 0;
 	m_robotDrive.SetSafetyEnabled(true);
+	
 	while (IsOperatorControl() && IsEnabled()) {
 
+		pEncoderPair->Update();
+		pDriverControl->Update();
 		// Drive with arcade style (use right stick)
-		m_robotDrive.ArcadeDrive(pDriverControl->GetVectorValue(Y_AXIS), pDriverControl->GetVectorValue(X_AXIS));
+
+
+
+		m_robotDrive.ArcadeDrive(pDriverControl->GetVectorValue(Y_AXIS), pDriverControl->GetVectorValue(X_AXIS), pDriverControl->isFullSpeed());
 		//sprintf(buf, "Y: %f - X: %f", -pDriverControl->GetVectorValue(Y_AXIS), pDriverControl->GetVectorValue(X_AXIS));
 
 		//Lift->Set(-pDriverControl->GetLiftValue());
 
-
-		pEncoderPair->Update();
+		//YawCameraController.Set(pDriverControl->GetVectorValue(X_AXIS));
+		//PitchCameraController.Set(pDriverControl->GetVectorValue(Y_AXIS));
+		
 
 		// The motors will be updated every 5ms
 		frc::DriverStation::ReportError(buf);

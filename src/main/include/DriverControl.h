@@ -12,6 +12,7 @@
 #define X_AXIS 0
 #define Y_AXIS 1
 #define Z_AXIS 2
+#define SPEED_DIVIDE 2
 
 #include <Joystick.h>
 
@@ -22,12 +23,15 @@ private:
 	bool bJoystick;
 	double controllerVector[2][3];
 	bool buttons[2][11];
+	double divider = 1;
 public:
 	DriverControl(bool bJoystick);
 	bool IsJoystick();
 	double GetVectorValue(int axis);
 	double GetLiftValue();
 	bool GetButtonValue(int stick, int button);
+	void Update();
+	bool isFullSpeed();
 
 };
 

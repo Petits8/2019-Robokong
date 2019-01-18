@@ -21,6 +21,7 @@ private:
 	frc::Timer *timer;
 	double timeInitial = 0.0;
 	double rightPositionDelta, leftPositionDelta, rightPositionInitial, leftPositionInitial, rightVelocity, leftVelocity;
+	int cycle = 0;
 
 public:
 	frc::Encoder getRightEncoder();
