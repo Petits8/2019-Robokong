@@ -80,6 +80,11 @@ void DriverControl::Update(){
 			else if(this->divider == SPEED_DIVIDE) this->divider = 1;
 		} 
 
+		if(this->buttons[1][0] == false && this->r_joystick.GetRawButton(1)){
+			ToggleClaw();
+			frc::DriverStation::ReportError("BUTTON");
+		}
+
 		//Updating Array
 		for(int i=0; i<2; i++){
 			for(int j=0; j<11; j++){
@@ -96,4 +101,14 @@ void DriverControl::Update(){
 bool DriverControl::isFullSpeed(){
 	if(this->divider == 1) return true;
 	return false;
+}
+
+void DriverControl::ToggleClaw(){
+	if(this->clawPiston.Get() == frc::DoubleSolenoid::Value::kForward){
+		this->clawPiston.Set(frc::DoubleSolenoid::Value::kReverse);
+	} else if(frc::DoubleSolenoid::Value::kReverse){
+		this->clawPiston.Set(frc::DoubleSolenoid::Value::kForward);
+	} else{
+		this->clawPiston.Set(frc::DoubleSolenoid::Value::kForward);
+	}
 }

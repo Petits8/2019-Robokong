@@ -53,8 +53,8 @@ void Robot::RobotInit() {
 
 	
 
-	std::thread visionThread(VisionThread);
-    visionThread.detach();
+	//std::thread visionThread(VisionThread);
+    //visionThread.detach();
 
 }
 

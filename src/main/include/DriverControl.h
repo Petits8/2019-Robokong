@@ -15,6 +15,8 @@
 #define SPEED_DIVIDE 2
 
 #include <Joystick.h>
+#include <DoubleSolenoid.h>
+#include <DriverStation.h>
 
 class DriverControl {
 private:
@@ -24,6 +26,7 @@ private:
 	double controllerVector[2][3];
 	bool buttons[2][11];
 	double divider = 1;
+	frc::DoubleSolenoid clawPiston{0, 1};
 public:
 	DriverControl(bool bJoystick);
 	bool IsJoystick();
@@ -32,6 +35,7 @@ public:
 	bool GetButtonValue(int stick, int button);
 	void Update();
 	bool isFullSpeed();
+	void ToggleClaw();
 
 };
 
