@@ -80,6 +80,7 @@ void DriverControl::Update(){
 			else if(this->divider == SPEED_DIVIDE) this->divider = 1;
 		} 
 
+		//Checks if R_Trigger is pressed and toggles pneumatic claw
 		if(this->buttons[1][0] == false && this->r_joystick.GetRawButton(1)){
 			ToggleClaw();
 			frc::DriverStation::ReportError("BUTTON");

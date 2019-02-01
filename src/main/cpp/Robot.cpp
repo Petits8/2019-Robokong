@@ -20,13 +20,16 @@
 
 #define LIFTMOTOR 4
 
-frc::Spark LeftFrontMotor(0);
-frc::Spark LeftRearMotor(1);
-frc::Spark RightFrontMotor(2);
-frc::Spark RightRearMotor(3);
+frc::Spark MRight_0(0);
+frc::Spark MRight_1(1);
+frc::Spark MRight_2(2);
+frc::Spark MLeft_0(3);
+frc::Spark MLeft_1(4);
+frc::Spark MLeft_2(5);
 
-frc::SpeedControllerGroup LeftMotors(LeftFrontMotor, LeftRearMotor);
-frc::SpeedControllerGroup RightMotors(RightFrontMotor, RightRearMotor);
+
+frc::SpeedControllerGroup RightMotors(MRight_0, MRight_1, MRight_2);
+frc::SpeedControllerGroup LeftMotors(MLeft_0, MLeft_1, MLeft_2);
 
 frc::Spark YawCameraController(5);
 frc::Spark PitchCameraController(6);
