@@ -34,6 +34,7 @@
 "D:\\c++ Projects\\Robocong-2019-Git\\2019-Robokong\\build\\tmp\\expandedArchives\\chipobject-2019.12.1-linuxathenadebug.zip_daec52d894924afc5918e319421b8f79\\linux\\athena\\shared\\libniriosession.so.18.0.0"
 "D:\\c++ Projects\\Robocong-2019-Git\\2019-Robokong\\build\\tmp\\expandedArchives\\chipobject-2019.12.1-linuxathenadebug.zip_daec52d894924afc5918e319421b8f79\\linux\\athena\\shared\\libvisa.so"
 "D:\\c++ Projects\\Robocong-2019-Git\\2019-Robokong\\build\\tmp\\expandedArchives\\netcomm-2019.12.1-linuxathenadebug.zip_e4376e2b1bdee86cd3249fe5960d8635\\linux\\athena\\shared\\libFRC_NetworkCommunication.so.19.0.0"
+"D:\\c++ Projects\\Robocong-2019-Git\\2019-Robokong\\build\\tmp\\expandedArchives\\SparkMax-cpp-1.0.27-linuxathenastaticdebug.zip_25d7fc671fee892315ce2bbfadf6613c\\linux\\athena\\static\\libSparkMax.a"
 -rdynamic
 -pthread
 -ldl

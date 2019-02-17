@@ -1,24 +1,4 @@
 See file:///D:/c++%20Projects/Robocong-2019-Git/2019-Robokong/build/tmp/compileFrcUserProgramReleaseExecutableFrcUserProgramCpp/output.txt for all output for compileFrcUserProgramReleaseExecutableFrcUserProgramCpp.
-compiling DriverControl.cpp successful.
-In file included from D:\c++ Projects\Robocong-2019-Git\2019-Robokong\src\main\include/DriverControl.h:17:0,
-                 from D:\c++ Projects\Robocong-2019-Git\2019-Robokong\src\main\cpp\DriverControl.cpp:8:
-D:\c++ Projects\Robocong-2019-Git\2019-Robokong\build\tmp\expandedArchives\wpilibc-cpp-2019.2.1-headers.zip_c5f7002a6c1dfda8aa2899e2594d01fe/Joystick.h:14:2: warning: #warning is a GCC extension
- #warning "Joystick.h is deprecated; include frc/Joystick.h instead"
-  ^~~~~~~
-D:\c++ Projects\Robocong-2019-Git\2019-Robokong\build\tmp\expandedArchives\wpilibc-cpp-2019.2.1-headers.zip_c5f7002a6c1dfda8aa2899e2594d01fe/Joystick.h:14:2: warning: #warning "Joystick.h is deprecated; include frc/Joystick.h instead" [-Wcpp]
-In file included from D:\c++ Projects\Robocong-2019-Git\2019-Robokong\src\main\include/DriverControl.h:18:0,
-                 from D:\c++ Projects\Robocong-2019-Git\2019-Robokong\src\main\cpp\DriverControl.cpp:8:
-D:\c++ Projects\Robocong-2019-Git\2019-Robokong\build\tmp\expandedArchives\wpilibc-cpp-2019.2.1-headers.zip_c5f7002a6c1dfda8aa2899e2594d01fe/DoubleSolenoid.h:14:2: warning: #warning is a GCC extension
- #warning "DoubleSolenoid.h is deprecated; include frc/DoubleSolenoid.h instead"
-  ^~~~~~~
-D:\c++ Projects\Robocong-2019-Git\2019-Robokong\build\tmp\expandedArchives\wpilibc-cpp-2019.2.1-headers.zip_c5f7002a6c1dfda8aa2899e2594d01fe/DoubleSolenoid.h:14:2: warning: #warning "DoubleSolenoid.h is deprecated; include frc/DoubleSolenoid.h instead" [-Wcpp]
-In file included from D:\c++ Projects\Robocong-2019-Git\2019-Robokong\src\main\include/DriverControl.h:19:0,
-                 from D:\c++ Projects\Robocong-2019-Git\2019-Robokong\src\main\cpp\DriverControl.cpp:8:
-D:\c++ Projects\Robocong-2019-Git\2019-Robokong\build\tmp\expandedArchives\wpilibc-cpp-2019.2.1-headers.zip_c5f7002a6c1dfda8aa2899e2594d01fe/DriverStation.h:14:2: warning: #warning is a GCC extension
- #warning "DriverStation.h is deprecated; include frc/DriverStation.h instead"
-  ^~~~~~~
-D:\c++ Projects\Robocong-2019-Git\2019-Robokong\build\tmp\expandedArchives\wpilibc-cpp-2019.2.1-headers.zip_c5f7002a6c1dfda8aa2899e2594d01fe/DriverStation.h:14:2: warning: #warning "DriverStation.h is deprecated; include frc/DriverStation.h instead" [-Wcpp]
-
 compiling VisionProcessing.cpp successful.
 In file included from D:\c++ Projects\Robocong-2019-Git\2019-Robokong\src\main\include/VisionProcessing.h:2:0,
                  from D:\c++ Projects\Robocong-2019-Git\2019-Robokong\src\main\cpp\VisionProcessing.cpp:1:
@@ -119,8 +99,13 @@ D:\c++ Projects\Robocong-2019-Git\2019-Robokong\build\tmp\expandedArchives\camer
  #warning "CameraServer.h is deprecated; include cameraserver/CameraServer.h instead"
   ^~~~~~~
 D:\c++ Projects\Robocong-2019-Git\2019-Robokong\build\tmp\expandedArchives\cameraserver-cpp-2019.2.1-headers.zip_6d5c4a8bf55973d76d90eeb158bc5c66/CameraServer.h:14:2: warning: #warning "CameraServer.h is deprecated; include cameraserver/CameraServer.h instead" [-Wcpp]
+In file included from D:\c++ Projects\Robocong-2019-Git\2019-Robokong\src\main\cpp\Robot.cpp:20:0:
+D:\c++ Projects\Robocong-2019-Git\2019-Robokong\build\tmp\expandedArchives\wpilibc-cpp-2019.2.1-headers.zip_c5f7002a6c1dfda8aa2899e2594d01fe/CAN.h:14:2: warning: #warning is a GCC extension
+ #warning "CAN.h is deprecated; include frc/CAN.h instead"
+  ^~~~~~~
+D:\c++ Projects\Robocong-2019-Git\2019-Robokong\build\tmp\expandedArchives\wpilibc-cpp-2019.2.1-headers.zip_c5f7002a6c1dfda8aa2899e2594d01fe/CAN.h:14:2: warning: #warning "CAN.h is deprecated; include frc/CAN.h instead" [-Wcpp]
 D:\c++ Projects\Robocong-2019-Git\2019-Robokong\src\main\cpp\Robot.cpp: In constructor 'Robot::Robot()':
-D:\c++ Projects\Robocong-2019-Git\2019-Robokong\src\main\cpp\Robot.cpp:45:14: warning: 'frc::SampleRobot::SampleRobot()' is deprecated: WARNING: While it may look like a good choice to use for your code if you're inexperienced, don't. Unless you know what you are doing, complex code will be much more difficult under this system. Use TimedRobot or Command-Based instead. [-Wdeprecated-declarations]
+D:\c++ Projects\Robocong-2019-Git\2019-Robokong\src\main\cpp\Robot.cpp:57:14: warning: 'frc::SampleRobot::SampleRobot()' is deprecated: WARNING: While it may look like a good choice to use for your code if you're inexperienced, don't. Unless you know what you are doing, complex code will be much more difficult under this system. Use TimedRobot or Command-Based instead. [-Wdeprecated-declarations]
  Robot::Robot() {
               ^
 In file included from D:\c++ Projects\Robocong-2019-Git\2019-Robokong\build\tmp\expandedArchives\wpilibc-cpp-2019.2.1-headers.zip_c5f7002a6c1dfda8aa2899e2594d01fe/SampleRobot.h:19:0,
@@ -137,25 +122,25 @@ D:\c++ Projects\Robocong-2019-Git\2019-Robokong\src\main\cpp\Robot.cpp: In funct
 D:\c++ Projects\Robocong-2019-Git\2019-Robokong\build\tmp\expandedArchives\wpilibc-cpp-2019.2.1-headers.zip_c5f7002a6c1dfda8aa2899e2594d01fe/frc/RobotBase.h:39:23: warning: 'int StartRobotClassImpl()' is deprecated: Call frc::StartRobot<Robot>() in your own main() instead of using the START_ROBOT_CLASS(Robot) macro. [-Wdeprecated-declarations]
    int main() { return StartRobotClassImpl(); }
                        ^
-D:\c++ Projects\Robocong-2019-Git\2019-Robokong\src\main\cpp\Robot.cpp:130:1: note: in expansion of macro 'START_ROBOT_CLASS'
+D:\c++ Projects\Robocong-2019-Git\2019-Robokong\src\main\cpp\Robot.cpp:147:1: note: in expansion of macro 'START_ROBOT_CLASS'
  START_ROBOT_CLASS(Robot)
  ^~~~~~~~~~~~~~~~~
 D:\c++ Projects\Robocong-2019-Git\2019-Robokong\build\tmp\expandedArchives\wpilibc-cpp-2019.2.1-headers.zip_c5f7002a6c1dfda8aa2899e2594d01fe/frc/RobotBase.h:38:7: note: declared here
    int StartRobotClassImpl() { return frc::StartRobot<_ClassName_>(); } \
        ^
-D:\c++ Projects\Robocong-2019-Git\2019-Robokong\src\main\cpp\Robot.cpp:130:1: note: in expansion of macro 'START_ROBOT_CLASS'
+D:\c++ Projects\Robocong-2019-Git\2019-Robokong\src\main\cpp\Robot.cpp:147:1: note: in expansion of macro 'START_ROBOT_CLASS'
  START_ROBOT_CLASS(Robot)
  ^~~~~~~~~~~~~~~~~
 D:\c++ Projects\Robocong-2019-Git\2019-Robokong\build\tmp\expandedArchives\wpilibc-cpp-2019.2.1-headers.zip_c5f7002a6c1dfda8aa2899e2594d01fe/frc/RobotBase.h:39:43: warning: 'int StartRobotClassImpl()' is deprecated: Call frc::StartRobot<Robot>() in your own main() instead of using the START_ROBOT_CLASS(Robot) macro. [-Wdeprecated-declarations]
    int main() { return StartRobotClassImpl(); }
                                            ^
-D:\c++ Projects\Robocong-2019-Git\2019-Robokong\src\main\cpp\Robot.cpp:130:1: note: in expansion of macro 'START_ROBOT_CLASS'
+D:\c++ Projects\Robocong-2019-Git\2019-Robokong\src\main\cpp\Robot.cpp:147:1: note: in expansion of macro 'START_ROBOT_CLASS'
  START_ROBOT_CLASS(Robot)
  ^~~~~~~~~~~~~~~~~
 D:\c++ Projects\Robocong-2019-Git\2019-Robokong\build\tmp\expandedArchives\wpilibc-cpp-2019.2.1-headers.zip_c5f7002a6c1dfda8aa2899e2594d01fe/frc/RobotBase.h:38:7: note: declared here
    int StartRobotClassImpl() { return frc::StartRobot<_ClassName_>(); } \
        ^
-D:\c++ Projects\Robocong-2019-Git\2019-Robokong\src\main\cpp\Robot.cpp:130:1: note: in expansion of macro 'START_ROBOT_CLASS'
+D:\c++ Projects\Robocong-2019-Git\2019-Robokong\src\main\cpp\Robot.cpp:147:1: note: in expansion of macro 'START_ROBOT_CLASS'
  START_ROBOT_CLASS(Robot)
  ^~~~~~~~~~~~~~~~~
 

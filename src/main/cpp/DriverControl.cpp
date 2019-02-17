@@ -19,14 +19,21 @@ DriverControl::DriverControl(bool bJoystick){
 			this->controllerVector[i][j] = 0.0;
 		}
 	}
+	this->timer = new frc::Timer();
+}
+bool DriverControl::getStationButton(int id){
+	return this->d_station_controller.GetRawButton(id);
 }
 bool DriverControl::IsJoystick(){return this->bJoystick;}
 double DriverControl::GetVectorValue(int axis){
+	double Y_AXIS_VALUE;
+	double Y_AXIS_VALUE_NEW;
 	if(bJoystick){
 		switch(axis){
 
 		case Y_AXIS:
 			return this->l_joystick.GetY()/this->divider;
+			//Y_AXIS_VALUE = this->l_joystick.GetY()/this->divider;
 		case X_AXIS:
 			return this->r_joystick.GetX()/this->divider;
 		case Z_AXIS:
@@ -41,7 +48,8 @@ double DriverControl::GetVectorValue(int axis){
 		case Y_AXIS:
 
 
-			return this->l_joystick.GetRawAxis(1)/this->divider;
+			Y_AXIS_VALUE = this->l_joystick.GetRawAxis(1)/this->divider;
+			break;
 
 
 		case X_AXIS:
@@ -55,6 +63,28 @@ double DriverControl::GetVectorValue(int axis){
 			return 0.0;
 
 		};
+
+		double timeDelta = timer->Get() - timeInitial;
+		timeInitial = timer->Get();
+
+		if(timeDelta == 0.0){
+			return Y_AXIS_VALUE;
+		}
+
+		yDelta = Y_AXIS_VALUE - yInitial;
+		if(yDelta/timeDelta > PWRVEL){
+			Y_AXIS_VALUE_NEW = yInitial + PWRVEL*timeDelta;
+		} else if(yDelta/timeDelta < -PWRVEL){
+			Y_AXIS_VALUE_NEW = yInitial - PWRVEL*timeDelta;
+		} else{
+			Y_AXIS_VALUE_NEW = Y_AXIS_VALUE;
+		}
+
+		timer->Reset();
+		timer->Start();
+		yInitial = Y_AXIS_VALUE_NEW;
+		return Y_AXIS_VALUE_NEW;
+
 	}
 }
 double DriverControl::GetLiftValue(){
@@ -71,7 +101,7 @@ bool DriverControl::GetButtonValue(int stick, int button){
 }
 
 void DriverControl::Update(){
-
+	
 	if(this->bJoystick){
 		
 		//Checking Slow Down Button

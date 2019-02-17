@@ -17,6 +17,9 @@
 #include <DriverControl.h>
 #include <CameraServer.h>
 #include <VisionProcessing.h>
+#include <CAN.h>
+#include <rev/SparkMax.h>
+#include <rev/CANSparkMax.h>
 
 #define LIFTMOTOR 4
 
@@ -27,19 +30,28 @@ frc::Spark MLeft_0(3);
 frc::Spark MLeft_1(4);
 frc::Spark MLeft_2(5);
 
+frc::Spark M_ARM1(6);
+frc::Spark M_ARM2(7);
 
+frc::Spark M_INTAKEROLLER(8);
+frc::Spark M_INTAKEARM(9);
+
+rev::CANSparkMax M_WRIST(5, rev::CANSparkMaxLowLevel::MotorType::kBrushless);
+
+
+frc::SpeedControllerGroup MCG_ARM(M_ARM1, M_ARM2);
 frc::SpeedControllerGroup RightMotors(MRight_0, MRight_1, MRight_2);
 frc::SpeedControllerGroup LeftMotors(MLeft_0, MLeft_1, MLeft_2);
 
-frc::Spark YawCameraController(5);
-frc::Spark PitchCameraController(6);
+//frc::Spark YawCameraController(5);
+//frc::Spark PitchCameraController(6);
 
 frc::DifferentialDrive m_robotDrive{LeftMotors, RightMotors};
 
 EncoderPair *pEncoderPair = new EncoderPair(4, 5, 2, 3);
 DriverControl *pDriverControl = new DriverControl(true);
 
-frc::Spark *Lift = new frc::Spark(LIFTMOTOR);
+//frc::Spark *Lift = new frc::Spark(LIFTMOTOR);
 
 
 Robot::Robot() {
@@ -102,9 +114,14 @@ void Robot::OperatorControl() {
 		// Drive with arcade style (use right stick)
 
 
-
-		m_robotDrive.ArcadeDrive(pDriverControl->GetVectorValue(Y_AXIS), pDriverControl->GetVectorValue(X_AXIS), pDriverControl->isFullSpeed());
-		//sprintf(buf, "Y: %f - X: %f", -pDriverControl->GetVectorValue(Y_AXIS), pDriverControl->GetVectorValue(X_AXIS));
+		MCG_ARM.Set(pDriverControl->GetVectorValue(Y_AXIS));
+		if(pDriverControl->getStationButton(3)){
+			M_INTAKEROLLER.Set(.7);
+		} else{
+			M_INTAKEROLLER.Set(0);
+		}
+		m_robotDrive.ArcadeDrive(0, 0, pDriverControl->isFullSpeed());
+		sprintf(buf, "Y: %f - X: %f", -pDriverControl->GetVectorValue(Y_AXIS), pDriverControl->GetVectorValue(X_AXIS));
 
 		//Lift->Set(-pDriverControl->GetLiftValue());
 

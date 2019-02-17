@@ -17,16 +17,21 @@
 #include <Joystick.h>
 #include <DoubleSolenoid.h>
 #include <DriverStation.h>
+#include <Timer.h>
+#define PWRVEL 5
 
 class DriverControl {
 private:
 	frc::Joystick l_joystick{0};
 	frc::Joystick r_joystick{1};
+	frc::Joystick d_station_controller{2};
 	bool bJoystick;
 	double controllerVector[2][3];
 	bool buttons[2][11];
 	double divider = 1;
 	frc::DoubleSolenoid clawPiston{0, 1};
+	frc::Timer *timer;
+	double yInitial, timeInitial, yDelta = 0.0;
 public:
 	DriverControl(bool bJoystick);
 	bool IsJoystick();
@@ -36,6 +41,7 @@ public:
 	void Update();
 	bool isFullSpeed();
 	void ToggleClaw();
+	bool getStationButton(int id);
 
 };
 
