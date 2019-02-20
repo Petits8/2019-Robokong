@@ -18,13 +18,15 @@
 #include <DoubleSolenoid.h>
 #include <DriverStation.h>
 #include <Timer.h>
+#include <Encoder.h>
 #define PWRVEL 5
+#define PI 3.14159
 
 class DriverControl {
 private:
 	frc::Joystick l_joystick{0};
 	frc::Joystick r_joystick{1};
-	frc::Joystick d_station_controller{2};
+	frc::Encoder *armEncoder;
 	bool bJoystick;
 	double controllerVector[2][3];
 	bool buttons[2][11];
@@ -32,6 +34,7 @@ private:
 	frc::DoubleSolenoid clawPiston{0, 1};
 	frc::Timer *timer;
 	double yInitial, timeInitial, yDelta = 0.0;
+	double armEncoderInitial = 0.0;
 public:
 	DriverControl(bool bJoystick);
 	bool IsJoystick();
@@ -42,6 +45,10 @@ public:
 	bool isFullSpeed();
 	void ToggleClaw();
 	bool getStationButton(int id);
+	frc::Encoder* getArmEncoder();
+	frc::Joystick d_station_controller{2};
+	double getArmEncoderInitial();
+	void setArmEncoderInitial(double value);
 
 };
 

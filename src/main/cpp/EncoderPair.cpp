@@ -58,7 +58,7 @@ void EncoderPair::Update(){
 		leftVelocity = leftPositionDelta/timeDelta;
 
 		//sprintf(buf, "R: %i - L: %i", rightEncoder->Get(), leftEncoder->Get());
-		sprintf(buf, "R: %f, L: %f", rightVelocity, leftVelocity);
+		//sprintf(buf, "R: %f, L: %f", rightVelocity, leftVelocity);
 
 
 		frc::DriverStation::ReportError(buf);

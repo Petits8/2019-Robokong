@@ -20,6 +20,14 @@ DriverControl::DriverControl(bool bJoystick){
 		}
 	}
 	this->timer = new frc::Timer();
+
+	armEncoder = new frc::Encoder(1, 0, true, frc::Encoder::EncodingType::k4X);
+	armEncoder->SetMaxPeriod(.1);
+	armEncoder->SetMinRate(10);
+	armEncoder->SetDistancePerPulse((2*PI) / 600);
+	armEncoder->SetReverseDirection(true);
+	armEncoder->SetSamplesToAverage(7);
+	armEncoder->Reset();
 }
 bool DriverControl::getStationButton(int id){
 	return this->d_station_controller.GetRawButton(id);
@@ -137,9 +145,16 @@ bool DriverControl::isFullSpeed(){
 void DriverControl::ToggleClaw(){
 	if(this->clawPiston.Get() == frc::DoubleSolenoid::Value::kForward){
 		this->clawPiston.Set(frc::DoubleSolenoid::Value::kReverse);
-	} else if(frc::DoubleSolenoid::Value::kReverse){
+	} else if(this->clawPiston.Get() == frc::DoubleSolenoid::Value::kReverse){
 		this->clawPiston.Set(frc::DoubleSolenoid::Value::kForward);
 	} else{
 		this->clawPiston.Set(frc::DoubleSolenoid::Value::kForward);
 	}
+}
+
+frc::Encoder* DriverControl::getArmEncoder(){
+	return this->armEncoder;
+}
+double DriverControl::getArmEncoderInitial(){
+	return this->armEncoderInitial;
 }

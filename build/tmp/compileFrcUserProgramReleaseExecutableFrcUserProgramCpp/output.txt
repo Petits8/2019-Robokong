@@ -122,25 +122,25 @@ D:\c++ Projects\Robocong-2019-Git\2019-Robokong\src\main\cpp\Robot.cpp: In funct
 D:\c++ Projects\Robocong-2019-Git\2019-Robokong\build\tmp\expandedArchives\wpilibc-cpp-2019.2.1-headers.zip_c5f7002a6c1dfda8aa2899e2594d01fe/frc/RobotBase.h:39:23: warning: 'int StartRobotClassImpl()' is deprecated: Call frc::StartRobot<Robot>() in your own main() instead of using the START_ROBOT_CLASS(Robot) macro. [-Wdeprecated-declarations]
    int main() { return StartRobotClassImpl(); }
                        ^
-D:\c++ Projects\Robocong-2019-Git\2019-Robokong\src\main\cpp\Robot.cpp:147:1: note: in expansion of macro 'START_ROBOT_CLASS'
+D:\c++ Projects\Robocong-2019-Git\2019-Robokong\src\main\cpp\Robot.cpp:164:1: note: in expansion of macro 'START_ROBOT_CLASS'
  START_ROBOT_CLASS(Robot)
  ^~~~~~~~~~~~~~~~~
 D:\c++ Projects\Robocong-2019-Git\2019-Robokong\build\tmp\expandedArchives\wpilibc-cpp-2019.2.1-headers.zip_c5f7002a6c1dfda8aa2899e2594d01fe/frc/RobotBase.h:38:7: note: declared here
    int StartRobotClassImpl() { return frc::StartRobot<_ClassName_>(); } \
        ^
-D:\c++ Projects\Robocong-2019-Git\2019-Robokong\src\main\cpp\Robot.cpp:147:1: note: in expansion of macro 'START_ROBOT_CLASS'
+D:\c++ Projects\Robocong-2019-Git\2019-Robokong\src\main\cpp\Robot.cpp:164:1: note: in expansion of macro 'START_ROBOT_CLASS'
  START_ROBOT_CLASS(Robot)
  ^~~~~~~~~~~~~~~~~
 D:\c++ Projects\Robocong-2019-Git\2019-Robokong\build\tmp\expandedArchives\wpilibc-cpp-2019.2.1-headers.zip_c5f7002a6c1dfda8aa2899e2594d01fe/frc/RobotBase.h:39:43: warning: 'int StartRobotClassImpl()' is deprecated: Call frc::StartRobot<Robot>() in your own main() instead of using the START_ROBOT_CLASS(Robot) macro. [-Wdeprecated-declarations]
    int main() { return StartRobotClassImpl(); }
                                            ^
-D:\c++ Projects\Robocong-2019-Git\2019-Robokong\src\main\cpp\Robot.cpp:147:1: note: in expansion of macro 'START_ROBOT_CLASS'
+D:\c++ Projects\Robocong-2019-Git\2019-Robokong\src\main\cpp\Robot.cpp:164:1: note: in expansion of macro 'START_ROBOT_CLASS'
  START_ROBOT_CLASS(Robot)
  ^~~~~~~~~~~~~~~~~
 D:\c++ Projects\Robocong-2019-Git\2019-Robokong\build\tmp\expandedArchives\wpilibc-cpp-2019.2.1-headers.zip_c5f7002a6c1dfda8aa2899e2594d01fe/frc/RobotBase.h:38:7: note: declared here
    int StartRobotClassImpl() { return frc::StartRobot<_ClassName_>(); } \
        ^
-D:\c++ Projects\Robocong-2019-Git\2019-Robokong\src\main\cpp\Robot.cpp:147:1: note: in expansion of macro 'START_ROBOT_CLASS'
+D:\c++ Projects\Robocong-2019-Git\2019-Robokong\src\main\cpp\Robot.cpp:164:1: note: in expansion of macro 'START_ROBOT_CLASS'
  START_ROBOT_CLASS(Robot)
  ^~~~~~~~~~~~~~~~~
 

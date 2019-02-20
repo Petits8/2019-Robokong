@@ -33,6 +33,10 @@ c++
 "D:\\c++ Projects\\Robocong-2019-Git\\2019-Robokong\\build\\tmp\\expandedArchives\\chipobject-2019.12.1-headers.zip_45012665afb78c4c4816a3a35e8fe8aa"
 -I
 "D:\\c++ Projects\\Robocong-2019-Git\\2019-Robokong\\build\\tmp\\expandedArchives\\netcomm-2019.12.1-headers.zip_97d07b8af9f28e0504c6dc239ac1f176"
+-I
+"D:\\c++ Projects\\Robocong-2019-Git\\2019-Robokong\\build\\tmp\\expandedArchives\\SparkMax-cpp-1.1.9-headers.zip_6619841bbed8d34dffe9eeb28bd7f31b"
+-I
+"D:\\c++ Projects\\Robocong-2019-Git\\2019-Robokong\\build\\tmp\\expandedArchives\\SparkMax-driver-1.1.9-headers.zip_dacf8f6821eef3703aad15b80a6ab47a"
 -isystem
 c:\\users\\public\\frc2019\\roborio\\bin\\..\\arm-frc2019-linux-gnueabi\\usr\\lib\\gcc\\arm-frc2019-linux-gnueabi\\6.3.0\\include
 -isystem

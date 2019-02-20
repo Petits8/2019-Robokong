@@ -24,8 +24,7 @@ private:
 	int cycle = 0;
 
 public:
-	frc::Encoder getRightEncoder();
-	frc::Encoder getLeftEncoder();
+	frc::Encoder getArmEncoder();
 	void Update();
 	double getDeltaVelocity();
 	double getRightEncoderVelocity();

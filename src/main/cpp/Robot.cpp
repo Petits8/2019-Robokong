@@ -36,7 +36,7 @@ frc::Spark M_ARM2(7);
 frc::Spark M_INTAKEROLLER(8);
 frc::Spark M_INTAKEARM(9);
 
-rev::CANSparkMax M_WRIST(5, rev::CANSparkMaxLowLevel::MotorType::kBrushless);
+rev::CANSparkMax M_WRIST(1, rev::CANSparkMaxLowLevel::MotorType::kBrushless);
 
 
 frc::SpeedControllerGroup MCG_ARM(M_ARM1, M_ARM2);
@@ -65,6 +65,9 @@ void Robot::RobotInit() {
 	//m_chooser.AddDefault(kAutoNameDefault, kAutoNameDefault);
 	//m_chooser.AddObject(kAutoNameCustom, kAutoNameCustom);
 	frc::SmartDashboard::PutData("Auto Modes", &m_chooser);
+	frc::CameraServer* camserv;
+	camserv->StartAutomaticCapture();
+	camserv->StartAutomaticCapture();
 
 	
 
@@ -113,15 +116,28 @@ void Robot::OperatorControl() {
 		pDriverControl->Update();
 		// Drive with arcade style (use right stick)
 
-
-		MCG_ARM.Set(pDriverControl->GetVectorValue(Y_AXIS));
-		if(pDriverControl->getStationButton(3)){
+		//M_WRIST.PIDWrite(-10);
+		if(pDriverControl->getStationButton(9)){
+			M_INTAKEARM.Set(pDriverControl->d_station_controller.GetRawAxis(0) * .6);
+			M_WRIST.Set(.01);
+			MCG_ARM.Set(0);
+		} else if(pDriverControl->getStationButton(10)){
+			M_WRIST.Set(pDriverControl->d_station_controller.GetRawAxis(0) * .5);
+			M_INTAKEARM.Set(0);
+			MCG_ARM.Set(0);
+		} else {
+			MCG_ARM.Set(pDriverControl->d_station_controller.GetRawAxis(0) * .6);
+			M_INTAKEARM.Set(0);
+			M_WRIST.Set(.01);
+		}
+		if(pDriverControl->getStationButton(4)){
 			M_INTAKEROLLER.Set(.7);
 		} else{
 			M_INTAKEROLLER.Set(0);
 		}
-		m_robotDrive.ArcadeDrive(0, 0, pDriverControl->isFullSpeed());
-		sprintf(buf, "Y: %f - X: %f", -pDriverControl->GetVectorValue(Y_AXIS), pDriverControl->GetVectorValue(X_AXIS));
+		m_robotDrive.ArcadeDrive(pDriverControl->GetVectorValue(Y_AXIS), pDriverControl->GetVectorValue(X_AXIS), pDriverControl->isFullSpeed());
+	 	sprintf(buf, "Y: %f", (M_WRIST.GetEncoder().GetPosition()/45)*2*PI);
+		
 
 		//Lift->Set(-pDriverControl->GetLiftValue());
 
@@ -133,6 +149,7 @@ void Robot::OperatorControl() {
 		frc::DriverStation::ReportError(buf);
 		frc::Wait(0.005);
 	}
+	pDriverControl->getArmEncoder()->Reset();
 }
 
 void DriveStraight(){
