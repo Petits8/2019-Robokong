@@ -59,7 +59,7 @@ double DriverControl::GetVectorValue(int axis){
 			return this->l_joystick.GetX()/this->divider;
 			break;
 		case DRVWRIST:
-			return this->r_joystick.GetY()/this->divider;	
+			return this->r_joystick.GetRawAxis(1)/this->divider;	
 		default:
 			return 0.0;
 
@@ -175,7 +175,7 @@ void Arm::Move(double vector){
 	this->_arm->Set(vector);
 }
 
-void Arm::Goto(int target, int spot) {	
+void Arm::Goto(int target, int spot, double w_target) {	
 	char buf[1024];
 	int error;
 	double speed;
@@ -184,8 +184,14 @@ void Arm::Goto(int target, int spot) {
 	speed=0;
 	error=abs(spot-target);
 	if (error >=0 && error < 2) { 
-		speed=.25; 
+		speed=.1; 
 		sprintf(buf, "<2 %f ",speed);
+
+		this->GetWrist()->Goto(w_target, this->GetWrist()->GetEncoderValue());
+
+
+	} else{
+		this->GetWrist()->Move(0);
 	}
 	if (error >= 2 && error < 5) { 
 		speed=.35; 
@@ -200,11 +206,11 @@ void Arm::Goto(int target, int spot) {
 	frc::DriverStation::ReportError(buf);
 
 	if (target < spot) {
-		this->_arm->Set(-speed);
+		this->_arm->Set(speed);
 	} else if (target > spot){
-		this->_arm->Set(speed);
+		this->_arm->Set(-speed);
 	} else {
-		this->_arm->Set(speed);
+		this->_arm->Set(-speed);
 	}
 }	
 
@@ -216,12 +222,23 @@ void Wrist::Move(double vector){
 	char buf[1024];
 
 	this->_wrist->Set(vector);
-	sprintf(buf, "Wrist: %f : %f", vector, this->_wrist->Get());
-	frc::DriverStation::ReportError(buf);
+	//sprintf(buf, "Wrist: %f : %f", vector, this->_wrist->Get());
+	//frc::DriverStation::ReportError(buf);
 }
 
 void Wrist::Goto(int target, int spot){
-
+	double speed = .4;
+	double error = target-spot;
+	if(abs(error) < .75){ 
+		speed = .1;
+	}
+	if (target < spot) {
+		this->Move(-speed);
+	} else if (target > spot){
+		this->Move(speed);
+	} else {
+		this->Move(speed);
+	}
 }
 
 void Wrist::Update(){
@@ -234,4 +251,14 @@ int Wrist::Get(){
 
 void Wrist::Zero(){
 
+}
+void Wrist::Init(){
+	this->encoderInitial = _wrist->GetEncoder().GetPosition();
+}
+
+double Wrist::GetEncoderValue(){
+	return this->_wrist->GetEncoder().GetPosition() - this->encoderInitial;
+}
+Wrist* Arm::GetWrist(){
+	return this->wrist;
 }

@@ -95,7 +95,7 @@ int EncoderSingle::Get() {
 		sprintf(buf, "In Get %d : %d : %d", _Encoder->Get(), this->iZeroValue, this->iZeroValue-_Encoder->Get());
 //		frc::DriverStation::ReportError(buf);
 
-	return this->iZeroValue-_Encoder->Get();
+	return _Encoder->Get()-this->iZeroValue;
 }
 
 void EncoderSingle::Zero() {

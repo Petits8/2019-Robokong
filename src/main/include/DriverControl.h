@@ -42,6 +42,7 @@ private:
 	frc::DoubleSolenoid clawPiston{0, 1};
 	frc::Timer *timer;
 	double yInitial, timeInitial, yDelta = 0.0;
+	
 public:
 	DriverControl(bool bJoystick);
 	bool IsJoystick();
@@ -55,39 +56,22 @@ public:
 	int getStationButton();
 };	
 
-
-class Arm {
-private:
-	frc::SpeedControllerGroup *_arm;
-	frc::Spark *_a1;
-	frc::Spark *_a2;
-
-public:
-	Arm(int x, int y){
-		_a1 = new frc::Spark(x);
-		_a2 = new frc::Spark(y);
-		_arm=new frc::SpeedControllerGroup(*_a1,*_a2);
-	}
-	
-	void Stay(int spot);
-	void Move(double vector);
-	void Goto(int target, int spot);
-};
-
 class Wrist {
 private:
 	rev::CANSparkMax *_wrist;
 	char mybuf[1024];
+	double encoderInitial;
 
 public:
 	Wrist(int id){
 		_wrist = new rev::CANSparkMax(id, rev::CANSparkMaxLowLevel::MotorType::kBrushless);
 			char buf[1024];
-
+		
 	sprintf(buf, "Wrist init");
 	frc::DriverStation::ReportError(buf);
 
 	}
+	void Init();
 
 	void Stay(int spot);
 	void Move(double vector);
@@ -95,7 +79,32 @@ public:
 	void Update();
 	int Get();
 	void Zero();
+	double GetEncoderValue();
 };
+
+class Arm {
+private:
+	frc::SpeedControllerGroup *_arm;
+	frc::Spark *_a1;
+	frc::Spark *_a2;
+	
+
+public:
+	Wrist *wrist;
+	Arm(int x, int y, int wrist_id){
+		_a1 = new frc::Spark(x);
+		_a2 = new frc::Spark(y);
+		_arm=new frc::SpeedControllerGroup(*_a1,*_a2);
+		wrist = new Wrist(wrist_id);
+	}
+	
+	void Stay(int spot);
+	void Move(double vector);
+	void Goto(int target, int spot, double w_target);
+	Wrist* GetWrist();
+};
+
+
 
 
 #endif /* SRC_DRIVERCONTROL_H_ */

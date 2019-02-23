@@ -24,10 +24,16 @@
 #define BTOP 7
 #define BCENTER 6
 #define BLOW 5
-#define STOP_GRAB 0
-#define STOP_TOP 254
-#define STOP_CENTER 327
-#define STOP_LOW 388
+#define STOP_GRAB 481
+#define STOP_TOP 251
+#define STOP_CENTER 129
+#define STOP_LOW 72
+
+#define WRIST_GRAB 5.285710
+#define WRIST_TOP 13.761938
+#define WRIST_CENTER 6.404757
+#define WRIST_LOW 6.309519
+
 
 frc::Spark MRight_0(0);
 frc::Spark MRight_1(1);
@@ -58,8 +64,7 @@ frc::DifferentialDrive m_robotDrive{LeftMotors, RightMotors};
 EncoderSingle *pShoulderEncoder = new EncoderSingle(0,1);
 
 DriverControl *pDriverControl = new DriverControl(true);
-Arm *arm = new Arm(6,7);
-Wrist *wrist = new Wrist(1);
+Arm *arm = new Arm(6,7,2);
 
 
 //frc::Spark *Lift = new frc::Spark(LIFTMOTOR);
@@ -114,6 +119,8 @@ void Robot::Autonomous() {
  * Runs the motors with arcade steering.
  */
 void Robot::OperatorControl() {
+	arm->GetWrist()->Init();
+	pShoulderEncoder->Zero();
 	char buf[1024];
 	buf[0] = 0;
 	m_robotDrive.SetSafetyEnabled(true);
@@ -123,6 +130,7 @@ void Robot::OperatorControl() {
 
 		pShoulderEncoder->Update();
 		pDriverControl->Update();
+			
 		// Drive with arcade style (use right stick)
 
 		if(pDriverControl->getStationButton(10)) {
@@ -131,23 +139,24 @@ void Robot::OperatorControl() {
 
 		switch (pDriverControl->getStationButton()) {
 			case BGRAB:
-				arm->Goto(STOP_GRAB, pShoulderEncoder->Get());
+				arm->Goto(STOP_GRAB, pShoulderEncoder->Get(), WRIST_GRAB);
 				break;
 			case BTOP:
-				arm->Goto(STOP_TOP, pShoulderEncoder->Get());
+				arm->Goto(STOP_TOP, pShoulderEncoder->Get(), WRIST_TOP);
 				break;
 			case BCENTER:
-				arm->Goto(STOP_CENTER, pShoulderEncoder->Get());
+				arm->Goto(STOP_CENTER, pShoulderEncoder->Get(), WRIST_CENTER);
 				break;
 			case BLOW:
-				arm->Goto(STOP_LOW, pShoulderEncoder->Get());
+				arm->Goto(STOP_LOW, pShoulderEncoder->Get(), WRIST_LOW);
 				break;
 			default:
 				arm->Move(pDriverControl->GetVectorValue(DRVARM));
+				arm->GetWrist()->Move(0);
 				break;
 		}
 
-		wrist->Move(pDriverControl->GetVectorValue(DRVWRIST));
+		//arm->GetWrist()->Move(pDriverControl->GetVectorValue(DRVWRIST));
 
 		if(pDriverControl->getStationButton(3)){
 			M_INTAKEROLLER.Set(.7);
@@ -158,7 +167,11 @@ void Robot::OperatorControl() {
 //		m_robotDrive.ArcadeDrive(-pDriverControl->GetVectorValue(Y_AXIS), pDriverControl->GetVectorValue(X_AXIS), pDriverControl->isFullSpeed());
 //		sprintf(buf, "Y: %f - X: %f", -pDriverControl->GetVectorValue(Y_AXIS), pDriverControl->GetVectorValue(X_AXIS));
 //		sprintf(buf, "%d", pDriverControl->getStationButton(3));
-		sprintf(buf, "Shoulder: %d %d", pShoulderEncoder->Get(), pDriverControl->getStationButton());
+		//sprintf(buf, "Shoulder: %d %d", pShoulderEncoder->Get(), pDriverControl->getStationButton());
+		if(pDriverControl->GetButtonValue(R_STICK, 11)){
+			 sprintf(buf, "WRIST: %f : ARM: %i", arm->GetWrist()->GetEncoderValue(), pShoulderEncoder->Get());
+			 frc::DriverStation::ReportError(buf);
+		}
 
 		//Lift->Set(-pDriverControl->GetLiftValue());
 
@@ -167,7 +180,7 @@ void Robot::OperatorControl() {
 		
 
 		// The motors will be updated every 5ms
-//		frc::DriverStation::ReportError(buf);
+		
 		frc::Wait(0.005);
 	}
 }
