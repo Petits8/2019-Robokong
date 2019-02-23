@@ -18,10 +18,16 @@
 #include <CameraServer.h>
 #include <VisionProcessing.h>
 #include <CAN.h>
-#include <rev/SparkMax.h>
-#include <rev/CANSparkMax.h>
 
 #define LIFTMOTOR 4
+#define BGRAB 8
+#define BTOP 7
+#define BCENTER 6
+#define BLOW 5
+#define STOP_GRAB 0
+#define STOP_TOP 254
+#define STOP_CENTER 327
+#define STOP_LOW 388
 
 frc::Spark MRight_0(0);
 frc::Spark MRight_1(1);
@@ -30,26 +36,31 @@ frc::Spark MLeft_0(3);
 frc::Spark MLeft_1(4);
 frc::Spark MLeft_2(5);
 
-frc::Spark M_ARM1(6);
-frc::Spark M_ARM2(7);
+//frc::Spark M_ARM1(6);
+//frc::Spark M_ARM2(7);
 
 frc::Spark M_INTAKEROLLER(8);
 frc::Spark M_INTAKEARM(9);
 
-rev::CANSparkMax M_WRIST(1, rev::CANSparkMaxLowLevel::MotorType::kBrushless);
 
 
-frc::SpeedControllerGroup MCG_ARM(M_ARM1, M_ARM2);
+//frc::SpeedControllerGroup MCG_ARM(M_ARM1, M_ARM2);
 frc::SpeedControllerGroup RightMotors(MRight_0, MRight_1, MRight_2);
 frc::SpeedControllerGroup LeftMotors(MLeft_0, MLeft_1, MLeft_2);
+
 
 //frc::Spark YawCameraController(5);
 //frc::Spark PitchCameraController(6);
 
 frc::DifferentialDrive m_robotDrive{LeftMotors, RightMotors};
 
-EncoderPair *pEncoderPair = new EncoderPair(4, 5, 2, 3);
+//EncoderPair *pEncoderPair = new EncoderPair(4, 5, 2, 3);
+EncoderSingle *pShoulderEncoder = new EncoderSingle(0,1);
+
 DriverControl *pDriverControl = new DriverControl(true);
+Arm *arm = new Arm(6,7);
+Wrist *wrist = new Wrist(1);
+
 
 //frc::Spark *Lift = new frc::Spark(LIFTMOTOR);
 
@@ -65,9 +76,6 @@ void Robot::RobotInit() {
 	//m_chooser.AddDefault(kAutoNameDefault, kAutoNameDefault);
 	//m_chooser.AddObject(kAutoNameCustom, kAutoNameCustom);
 	frc::SmartDashboard::PutData("Auto Modes", &m_chooser);
-	frc::CameraServer* camserv;
-	camserv->StartAutomaticCapture();
-	camserv->StartAutomaticCapture();
 
 	
 
@@ -109,35 +117,48 @@ void Robot::OperatorControl() {
 	char buf[1024];
 	buf[0] = 0;
 	m_robotDrive.SetSafetyEnabled(true);
+	int b7Latch=0;
 	
 	while (IsOperatorControl() && IsEnabled()) {
 
-		pEncoderPair->Update();
+		pShoulderEncoder->Update();
 		pDriverControl->Update();
 		// Drive with arcade style (use right stick)
 
-		//M_WRIST.PIDWrite(-10);
-		if(pDriverControl->getStationButton(9)){
-			M_INTAKEARM.Set(pDriverControl->d_station_controller.GetRawAxis(0) * .6);
-			M_WRIST.Set(.01);
-			MCG_ARM.Set(0);
-		} else if(pDriverControl->getStationButton(10)){
-			M_WRIST.Set(pDriverControl->d_station_controller.GetRawAxis(0) * .5);
-			M_INTAKEARM.Set(0);
-			MCG_ARM.Set(0);
-		} else {
-			MCG_ARM.Set(pDriverControl->d_station_controller.GetRawAxis(0) * .6);
-			M_INTAKEARM.Set(0);
-			M_WRIST.Set(.01);
+		if(pDriverControl->getStationButton(10)) {
+			pShoulderEncoder->Zero();	
 		}
-		if(pDriverControl->getStationButton(4)){
+
+		switch (pDriverControl->getStationButton()) {
+			case BGRAB:
+				arm->Goto(STOP_GRAB, pShoulderEncoder->Get());
+				break;
+			case BTOP:
+				arm->Goto(STOP_TOP, pShoulderEncoder->Get());
+				break;
+			case BCENTER:
+				arm->Goto(STOP_CENTER, pShoulderEncoder->Get());
+				break;
+			case BLOW:
+				arm->Goto(STOP_LOW, pShoulderEncoder->Get());
+				break;
+			default:
+				arm->Move(pDriverControl->GetVectorValue(DRVARM));
+				break;
+		}
+
+		wrist->Move(pDriverControl->GetVectorValue(DRVWRIST));
+
+		if(pDriverControl->getStationButton(3)){
 			M_INTAKEROLLER.Set(.7);
 		} else{
 			M_INTAKEROLLER.Set(0);
 		}
-		m_robotDrive.ArcadeDrive(pDriverControl->GetVectorValue(Y_AXIS), pDriverControl->GetVectorValue(X_AXIS), pDriverControl->isFullSpeed());
-	 	sprintf(buf, "Y: %f", (M_WRIST.GetEncoder().GetPosition()/45)*2*PI);
-		
+		m_robotDrive.ArcadeDrive(0, 0, pDriverControl->isFullSpeed());
+//		m_robotDrive.ArcadeDrive(-pDriverControl->GetVectorValue(Y_AXIS), pDriverControl->GetVectorValue(X_AXIS), pDriverControl->isFullSpeed());
+//		sprintf(buf, "Y: %f - X: %f", -pDriverControl->GetVectorValue(Y_AXIS), pDriverControl->GetVectorValue(X_AXIS));
+//		sprintf(buf, "%d", pDriverControl->getStationButton(3));
+		sprintf(buf, "Shoulder: %d %d", pShoulderEncoder->Get(), pDriverControl->getStationButton());
 
 		//Lift->Set(-pDriverControl->GetLiftValue());
 
@@ -146,10 +167,9 @@ void Robot::OperatorControl() {
 		
 
 		// The motors will be updated every 5ms
-		frc::DriverStation::ReportError(buf);
+//		frc::DriverStation::ReportError(buf);
 		frc::Wait(0.005);
 	}
-	pDriverControl->getArmEncoder()->Reset();
 }
 
 void DriveStraight(){

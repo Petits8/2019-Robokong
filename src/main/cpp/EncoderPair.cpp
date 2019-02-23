@@ -58,7 +58,7 @@ void EncoderPair::Update(){
 		leftVelocity = leftPositionDelta/timeDelta;
 
 		//sprintf(buf, "R: %i - L: %i", rightEncoder->Get(), leftEncoder->Get());
-		//sprintf(buf, "R: %f, L: %f", rightVelocity, leftVelocity);
+		sprintf(buf, "R: %f, L: %f", rightVelocity, leftVelocity);
 
 
 		frc::DriverStation::ReportError(buf);
@@ -71,3 +71,37 @@ void EncoderPair::Update(){
 	timer->Start();
 	return;
 }
+
+
+EncoderSingle::EncoderSingle(int pin1, int pin2){
+	_Encoder = new frc::Encoder(pin1, pin2, true, frc::Encoder::EncodingType::k4X);
+	_Encoder->SetMaxPeriod(.1);
+	_Encoder->SetMinRate(10);
+	_Encoder->SetDistancePerPulse((5 * M_PI)/128);
+	_Encoder->SetReverseDirection(true);
+	_Encoder->SetSamplesToAverage(7);
+	_Encoder->Reset();
+	this->iZeroValue = _Encoder->Get();
+
+	timer = new frc::Timer();
+}
+
+void EncoderSingle::Update(){
+	return;
+}
+
+int EncoderSingle::Get() {
+	char buf[1024];
+		sprintf(buf, "In Get %d : %d : %d", _Encoder->Get(), this->iZeroValue, this->iZeroValue-_Encoder->Get());
+//		frc::DriverStation::ReportError(buf);
+
+	return this->iZeroValue-_Encoder->Get();
+}
+
+void EncoderSingle::Zero() {
+	char buf[1024];
+		sprintf(buf, "ZERO Get %d : %d : %d", _Encoder->Get(), this->iZeroValue, this->iZeroValue-_Encoder->Get());
+		frc::DriverStation::ReportError(buf);
+	this->iZeroValue = _Encoder->Get();
+}
+

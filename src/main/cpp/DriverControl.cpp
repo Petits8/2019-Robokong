@@ -6,6 +6,7 @@
  */
 
 #include <DriverControl.h>
+#include <math.h>
 
 DriverControl::DriverControl(bool bJoystick){
 	this->bJoystick = bJoystick;
@@ -20,18 +21,23 @@ DriverControl::DriverControl(bool bJoystick){
 		}
 	}
 	this->timer = new frc::Timer();
-
-	armEncoder = new frc::Encoder(1, 0, true, frc::Encoder::EncodingType::k4X);
-	armEncoder->SetMaxPeriod(.1);
-	armEncoder->SetMinRate(10);
-	armEncoder->SetDistancePerPulse((2*PI) / 600);
-	armEncoder->SetReverseDirection(true);
-	armEncoder->SetSamplesToAverage(7);
-	armEncoder->Reset();
 }
 bool DriverControl::getStationButton(int id){
 	return this->d_station_controller.GetRawButton(id);
 }
+int DriverControl::getStationButton(){
+	if (this->getStationButton(1)) return 1;
+	if (this->getStationButton(2)) return 2;
+	if (this->getStationButton(3)) return 3;
+	if (this->getStationButton(4)) return 4;
+	if (this->getStationButton(5)) return 5;
+	if (this->getStationButton(6)) return 6;
+	if (this->getStationButton(7)) return 7;
+	if (this->getStationButton(8)) return 8;
+	if (this->getStationButton(9)) return 9;
+	if (this->getStationButton(10)) return 10;
+}
+
 bool DriverControl::IsJoystick(){return this->bJoystick;}
 double DriverControl::GetVectorValue(int axis){
 	double Y_AXIS_VALUE;
@@ -39,13 +45,21 @@ double DriverControl::GetVectorValue(int axis){
 	if(bJoystick){
 		switch(axis){
 
-		case Y_AXIS:
+		case DRVFORWARD:
 			return this->l_joystick.GetY()/this->divider;
+			break;
 			//Y_AXIS_VALUE = this->l_joystick.GetY()/this->divider;
-		case X_AXIS:
+		case DRVROTATE:
 			return this->r_joystick.GetX()/this->divider;
+			break;
 		case Z_AXIS:
 			return (this->l_joystick.GetZ()+this->r_joystick.GetZ())/2;
+			break;
+		case DRVARM:
+			return this->l_joystick.GetX()/this->divider;
+			break;
+		case DRVWRIST:
+			return this->r_joystick.GetY()/this->divider;	
 		default:
 			return 0.0;
 
@@ -145,16 +159,79 @@ bool DriverControl::isFullSpeed(){
 void DriverControl::ToggleClaw(){
 	if(this->clawPiston.Get() == frc::DoubleSolenoid::Value::kForward){
 		this->clawPiston.Set(frc::DoubleSolenoid::Value::kReverse);
-	} else if(this->clawPiston.Get() == frc::DoubleSolenoid::Value::kReverse){
+	} else if(frc::DoubleSolenoid::Value::kReverse){
 		this->clawPiston.Set(frc::DoubleSolenoid::Value::kForward);
 	} else{
 		this->clawPiston.Set(frc::DoubleSolenoid::Value::kForward);
 	}
 }
 
-frc::Encoder* DriverControl::getArmEncoder(){
-	return this->armEncoder;
+
+void Arm::Stay(int spot){
+
 }
-double DriverControl::getArmEncoderInitial(){
-	return this->armEncoderInitial;
+
+void Arm::Move(double vector){
+	this->_arm->Set(vector);
+}
+
+void Arm::Goto(int target, int spot) {	
+	char buf[1024];
+	int error;
+	double speed;
+
+
+	speed=0;
+	error=abs(spot-target);
+	if (error >=0 && error < 2) { 
+		speed=.25; 
+		sprintf(buf, "<2 %f ",speed);
+	}
+	if (error >= 2 && error < 5) { 
+		speed=.35; 
+		sprintf(buf, ">=2 %f ",speed);
+	}
+	if (error >= 5) {
+		speed=.5; 
+		sprintf(buf, ">=5 %f ",speed);
+	}
+
+	sprintf(buf, "%s Goto: T:%d S:%d Sp: %f E:%d", buf, target, spot, speed, error);
+	frc::DriverStation::ReportError(buf);
+
+	if (target < spot) {
+		this->_arm->Set(-speed);
+	} else if (target > spot){
+		this->_arm->Set(speed);
+	} else {
+		this->_arm->Set(speed);
+	}
+}	
+
+void Wrist::Stay(int spot){
+
+}
+
+void Wrist::Move(double vector){
+	char buf[1024];
+
+	this->_wrist->Set(vector);
+	sprintf(buf, "Wrist: %f : %f", vector, this->_wrist->Get());
+	frc::DriverStation::ReportError(buf);
+}
+
+void Wrist::Goto(int target, int spot){
+
+}
+
+void Wrist::Update(){
+
+}
+
+int Wrist::Get(){
+
+}
+
+void Wrist::Zero(){
+
 }
