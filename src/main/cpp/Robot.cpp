@@ -152,7 +152,6 @@ void Robot::OperatorControl() {
 				break;
 			default:
 				arm->Move(pDriverControl->GetVectorValue(DRVARM));
-				arm->GetWrist()->Move(0);
 				break;
 		}
 

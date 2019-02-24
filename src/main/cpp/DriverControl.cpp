@@ -172,6 +172,10 @@ void Arm::Stay(int spot){
 }
 
 void Arm::Move(double vector){
+	char buf[1024];
+	sprintf(buf, "Move: %f", vector);
+//	frc::DriverStation::ReportError(buf);
+
 	this->_arm->Set(vector);
 }
 
@@ -179,32 +183,110 @@ void Arm::Goto(int target, int spot, double w_target) {
 	char buf[1024];
 	int error;
 	double speed;
+	double HoldSpeed;
+	double ArmUp;
+	double ArmDown;
+	double ArmMidSpeed;
+	double ArmHighSpeed;
+	int ArmMidCutoff;
+	int ArmHighCutoff;
+
+
+	if (target < LOW_CUTOFF){
+		frc::DriverStation::ReportError("LOW");
+		HoldSpeed=LOW_ARM_HOLD;
+		ArmUp=LOW_ARM_UP;
+		ArmDown=LOW_ARM_DOWN;
+		ArmMidSpeed=LOW_MID_SPEED;
+		ArmHighSpeed=LOW_HIGH_SPEED;
+		ArmMidCutoff=LOW_MID_CUTOFF;
+		ArmHighCutoff=LOW_HIGH_CUTOFF;
+	} else if (target >= LOW_CUTOFF && target < MID_CUTOFF){
+		frc::DriverStation::ReportError("MID");
+		HoldSpeed=MID_ARM_HOLD;
+		ArmUp=MID_ARM_UP;
+		ArmDown=MID_ARM_DOWN;
+		ArmMidSpeed=MID_MID_SPEED;
+		ArmHighSpeed=MID_HIGH_SPEED;
+		ArmMidCutoff=MID_MID_CUTOFF;
+		ArmHighCutoff=MID_HIGH_CUTOFF;
+	} else if (target>=MID_CUTOFF && target<HIGH_CUTOFF) { 
+		frc::DriverStation::ReportError("HIGH");
+		HoldSpeed=HIGH_ARM_HOLD;
+		ArmUp=HIGH_ARM_UP;
+		ArmDown=HIGH_ARM_DOWN;
+		ArmMidSpeed=HIGH_MID_SPEED;
+		ArmHighSpeed=HIGH_HIGH_SPEED;
+		ArmMidCutoff=HIGH_MID_CUTOFF;
+		ArmHighCutoff=HIGH_HIGH_CUTOFF;
+	} else {
+		frc::DriverStation::ReportError("GRAB");
+		HoldSpeed=GRAB_ARM_HOLD;
+		ArmUp=GRAB_ARM_UP;
+		ArmDown=GRAB_ARM_DOWN;
+		ArmMidSpeed=GRAB_MID_SPEED;
+		ArmHighSpeed=GRAB_HIGH_SPEED;
+		ArmMidCutoff=GRAB_MID_CUTOFF;
+		ArmHighCutoff=GRAB_HIGH_CUTOFF;
+	}
 
 
 	speed=0;
 	error=abs(spot-target);
-	if (error >=0 && error < 2) { 
-		speed=.1; 
-		sprintf(buf, "<2 %f ",speed);
 
-		this->GetWrist()->Goto(w_target, this->GetWrist()->GetEncoderValue());
-
-
-	} else{
-		this->GetWrist()->Move(0);
-	}
-	if (error >= 2 && error < 5) { 
-		speed=.35; 
-		sprintf(buf, ">=2 %f ",speed);
-	}
-	if (error >= 5) {
-		speed=.5; 
-		sprintf(buf, ">=5 %f ",speed);
+	//
+	// Once we get to the target, move the wrist into position
+	//
+	if (error<2) {
+		sprintf(buf, "WRIST1 %f %f",w_target, this->GetWrist()->GetEncoderValue());
+//		frc::DriverStation::ReportError(buf);
+		sprintf(buf, "WRIST2: T:%d S:%d Sp: %f E:%d %f", target, spot, speed, error, HoldSpeed);
+		frc::DriverStation::ReportError(buf);
+		
+		this->timer->Start();
+		this->_arm->Set(HoldSpeed);
+		this->GetWrist()->Goto(w_target, this->GetWrist()->GetEncoderValue(), spot);
+		return;
 	}
 
-	sprintf(buf, "%s Goto: T:%d S:%d Sp: %f E:%d", buf, target, spot, speed, error);
+ 	//
+	// Tuck the wrist in before we travel
+	//
+/* 	if (this->GetWrist()->GetEncoderValue()>4 && this->timer->Get()>3){
+		sprintf(buf, "Tuck %f %d=%d-%d T:%d", this->GetWrist()->GetEncoderValue(), error, spot, target, this->timer->Get());
+		frc::DriverStation::ReportError(buf);
+		this->timer->Stop();
+//		this->timer->Reset();
+		this->GetWrist()->Tuck(1,this->GetWrist()->GetEncoderValue());
+		return;
+	}
+ */
+	//
+	// Figure out how fast to move
+	//
+	if (error >=0 && error < ArmMidCutoff) {
+		if (target>spot) {
+			speed=ArmUp;
+		} else {
+			speed=ArmDown;
+		}
+		sprintf(buf, "LOW %f ",speed);
+	}
+	if (error >= ArmMidCutoff && error < ArmHighCutoff) { 
+		speed=ArmMidSpeed; 
+		sprintf(buf, ">MID %f ",speed);
+	}
+	if (error >= ArmHighCutoff) {
+		speed=ArmHighSpeed; 
+		sprintf(buf, ">HIGH %f ",speed);
+	}
+
+	sprintf(buf, "%s Goto: T:%d S:%d Sp: %f E:%d  %f : %f : %f : %f : %f : %d : %d T:%d", buf, target, spot, speed, error, HoldSpeed, ArmUp, ArmDown, ArmMidSpeed, ArmHighSpeed, ArmMidCutoff, ArmHighCutoff, this->timer->Get());
 	frc::DriverStation::ReportError(buf);
 
+	//
+	// Now move to the target
+	//
 	if (target < spot) {
 		this->_arm->Set(speed);
 	} else if (target > spot){
@@ -214,24 +296,68 @@ void Arm::Goto(int target, int spot, double w_target) {
 	}
 }	
 
-void Wrist::Stay(int spot){
+void Wrist::Tuck(int target, int spot){
+	char buf[1024];
+	double speed;
 
+	if (spot < LOW_CUTOFF) {
+		speed = LOW_WRIST_SPEED;
+	} else if (spot >= LOW_CUTOFF && spot < MID_CUTOFF){
+		speed = MID_WRIST_SPEED;
+	} else if (spot >= MID_CUTOFF && spot < HIGH_CUTOFF){
+		speed = HIGH_WRIST_SPEED;
+	} else {
+		speed = GRAB_WRIST_SPEED;
+	}
+
+	if (this->GetEncoderValue()>target){
+		this->_wrist->Set(-speed);
+	} else {
+		this->_wrist->Set(0.0);
+	}
 }
 
 void Wrist::Move(double vector){
 	char buf[1024];
 
 	this->_wrist->Set(vector);
-	//sprintf(buf, "Wrist: %f : %f", vector, this->_wrist->Get());
-	//frc::DriverStation::ReportError(buf);
+	sprintf(buf, "Wrist: %f : %f", vector, this->_wrist->Get());
+//	frc::DriverStation::ReportError(buf);
 }
 
-void Wrist::Goto(int target, int spot){
-	double speed = .4;
-	double error = target-spot;
-	if(abs(error) < .75){ 
-		speed = .1;
+void Wrist::Goto(int target, int spot, int ArmPosition){
+	char buf[1024];
+	double HoldSpeed;
+	double speed;
+
+	if (ArmPosition < LOW_CUTOFF){
+		HoldSpeed=LOW_WRIST_HOLD;
+		speed=LOW_WRIST_SPEED;
+	} else if (ArmPosition >= LOW_CUTOFF && ArmPosition < MID_CUTOFF){
+		HoldSpeed=MID_WRIST_HOLD;
+		speed=MID_WRIST_SPEED;
+	} else if (ArmPosition >= MID_CUTOFF && ArmPosition < HIGH_CUTOFF){
+		HoldSpeed=HIGH_WRIST_HOLD;
+		speed=HIGH_WRIST_SPEED;
+	} else {
+		HoldSpeed=GRAB_WRIST_HOLD;
+		speed=GRAB_WRIST_SPEED;
 	}
+
+	int error = abs(target-spot);
+	if(error < 2){ 
+		speed = HoldSpeed;
+	}
+
+	sprintf(buf, "Wrist Target:%d Spot:%d W:%f S:%f E:%d %f %f", target, spot, this->GetEncoderValue(), speed, error, HoldSpeed, speed);
+	frc::DriverStation::ReportError(buf);
+
+	if (0==error){
+		this->Move(HoldSpeed);
+		return;
+	}
+	
+
 	if (target < spot) {
 		this->Move(-speed);
 	} else if (target > spot){
