@@ -24,15 +24,7 @@
 #define BTOP 7
 #define BCENTER 6
 #define BLOW 5
-#define STOP_GRAB 481
-#define STOP_TOP 251
-#define STOP_CENTER 129
-#define STOP_LOW 72
 
-#define WRIST_GRAB 5.285710
-#define WRIST_TOP 13.761938
-#define WRIST_CENTER 6.404757
-#define WRIST_LOW 6.309519
 
 
 frc::Spark MRight_0(0);
@@ -119,51 +111,107 @@ void Robot::Autonomous() {
  * Runs the motors with arcade steering.
  */
 void Robot::OperatorControl() {
-	arm->GetWrist()->Init();
-	pShoulderEncoder->Zero();
+	bool bInitLatch = false; 
 	char buf[1024];
 	buf[0] = 0;
 	m_robotDrive.SetSafetyEnabled(true);
 	int b7Latch=0;
+	bool bButtonReleaseLatch = true; 
+	float w_last;
+	int arm_last;
+	int roller_state = 0;
+	int d_joystick_latch = 0;
 	
 	while (IsOperatorControl() && IsEnabled()) {
-
+		if (!bInitLatch){
+			arm->GetWrist()->Init();
+			pShoulderEncoder->Zero();
+			bInitLatch = true; 
+		}
 		pShoulderEncoder->Update();
 		pDriverControl->Update();
 			
 		// Drive with arcade style (use right stick)
 
-		if(pDriverControl->getStationButton(10)) {
-			pShoulderEncoder->Zero();	
-		}
+		
 
 		switch (pDriverControl->getStationButton()) {
 			case BGRAB:
 				arm->Goto(STOP_GRAB, pShoulderEncoder->Get(), WRIST_GRAB);
+				bButtonReleaseLatch = false;
 				break;
 			case BTOP:
 				arm->Goto(STOP_TOP, pShoulderEncoder->Get(), WRIST_TOP);
+				bButtonReleaseLatch = false;
 				break;
 			case BCENTER:
 				arm->Goto(STOP_CENTER, pShoulderEncoder->Get(), WRIST_CENTER);
+				bButtonReleaseLatch = false;
 				break;
 			case BLOW:
 				arm->Goto(STOP_LOW, pShoulderEncoder->Get(), WRIST_LOW);
+				bButtonReleaseLatch = false;
+				break;
+			case 10:
+				
+				if(abs(pDriverControl->d_station_controller.GetX()) > .1 || abs(pDriverControl->d_station_controller.GetY()) > .1){
+					arm->Move(pDriverControl->d_station_controller.GetX() * .5);
+					arm->GetWrist()->Move(pDriverControl->d_station_controller.GetY() * .1);
+					bButtonReleaseLatch = false;
+				} else{
+						if(!bButtonReleaseLatch){
+						w_last = arm->GetWrist()->GetEncoderValue();
+						arm_last = pShoulderEncoder->Get();
+						bButtonReleaseLatch = true;
+						
+						}
+					arm->Stay(arm_last, pShoulderEncoder->Get());
+					arm->GetWrist()->Stay(w_last);
+				}
 				break;
 			default:
-				arm->Move(pDriverControl->GetVectorValue(DRVARM));
+				//arm->Move(pDriverControl->GetVectorValue(DRVARM));
+				//arm->GetWrist()->Move(pDriverControl->GetVectorValue(X_AXIS));
+				if(!bButtonReleaseLatch){
+					w_last = arm->GetWrist()->GetEncoderValue();
+					arm_last = pShoulderEncoder->Get();
+					bButtonReleaseLatch = true;
+				}
+				arm->Stay(arm_last, pShoulderEncoder->Get());
+				arm->GetWrist()->Stay(w_last);
+
+				M_INTAKEARM.Set(pDriverControl->d_station_controller.GetX() * -.7);
+		
+				double d_joy_y = pDriverControl->d_station_controller.GetY();
+				if(d_joy_y == 1.0 && d_joystick_latch != 1){
+					if(roller_state < 1){
+						roller_state += 1;
+					}
+					d_joystick_latch = 1;
+				} else if(d_joy_y == -1.0 && d_joystick_latch != -1){
+					if(roller_state > -1){
+						roller_state -= 1;
+					}
+					d_joystick_latch = -1;
+				} else if(d_joy_y != 1.0 && d_joy_y != -1.0){
+					d_joystick_latch = 0;
+				}
+				
+				M_INTAKEROLLER.Set(roller_state * .7);
+
+
 				break;
 		}
 
 		//arm->GetWrist()->Move(pDriverControl->GetVectorValue(DRVWRIST));
+		
+		
 
-		if(pDriverControl->getStationButton(3)){
-			M_INTAKEROLLER.Set(.7);
-		} else{
-			M_INTAKEROLLER.Set(0);
-		}
-		m_robotDrive.ArcadeDrive(0, 0, pDriverControl->isFullSpeed());
-//		m_robotDrive.ArcadeDrive(-pDriverControl->GetVectorValue(Y_AXIS), pDriverControl->GetVectorValue(X_AXIS), pDriverControl->isFullSpeed());
+		//sprintf(buf, "INTAKE ARM: %f", pDriverControl->d_station_controller.GetX());
+		//frc::DriverStation::ReportError(buf);
+		
+		//m_robotDrive.ArcadeDrive(0, 0, pDriverControl->isFullSpeed());
+		m_robotDrive.ArcadeDrive(pDriverControl->GetVectorValue(X_AXIS), pDriverControl->GetVectorValue(Y_AXIS), pDriverControl->isFullSpeed());
 //		sprintf(buf, "Y: %f - X: %f", -pDriverControl->GetVectorValue(Y_AXIS), pDriverControl->GetVectorValue(X_AXIS));
 //		sprintf(buf, "%d", pDriverControl->getStationButton(3));
 		//sprintf(buf, "Shoulder: %d %d", pShoulderEncoder->Get(), pDriverControl->getStationButton());
@@ -182,6 +230,7 @@ void Robot::OperatorControl() {
 		
 		frc::Wait(0.005);
 	}
+	bInitLatch = false;
 }
 
 void DriveStraight(){

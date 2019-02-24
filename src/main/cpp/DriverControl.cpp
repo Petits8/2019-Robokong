@@ -1,12 +1,8 @@
-/*
- * DriverControl.cpp
- *
- *  Created on: Dec 6, 2018
- *      Author: Jesus Velarde
- */
+
 
 #include <DriverControl.h>
 #include <math.h>
+#include <EncoderPair.h>
 
 DriverControl::DriverControl(bool bJoystick){
 	this->bJoystick = bJoystick;
@@ -166,11 +162,6 @@ void DriverControl::ToggleClaw(){
 	}
 }
 
-
-void Arm::Stay(int spot){
-
-}
-
 void Arm::Move(double vector){
 	char buf[1024];
 	sprintf(buf, "Move: %f", vector);
@@ -190,6 +181,7 @@ void Arm::Goto(int target, int spot, double w_target) {
 	double ArmHighSpeed;
 	int ArmMidCutoff;
 	int ArmHighCutoff;
+	bool bMove = true; 
 
 
 	if (target < LOW_CUTOFF){
@@ -248,6 +240,17 @@ void Arm::Goto(int target, int spot, double w_target) {
 		this->GetWrist()->Goto(w_target, this->GetWrist()->GetEncoderValue(), spot);
 		return;
 	}
+	
+	if(target != this->prev_target){
+
+		if(spot < GRAB_CUTOFF && spot > GRAB_CUTOFF-GRAB_ZONE_OFFSET){
+			frc::DriverStation::ReportError("GRAB ZONE");
+		} else if(wrist->Tuck(0, this->GetWrist()->GetEncoderValue())){
+			this->prev_target = target;
+		} else{
+			bMove = false; 
+		}
+	}
 
  	//
 	// Tuck the wrist in before we travel
@@ -287,6 +290,11 @@ void Arm::Goto(int target, int spot, double w_target) {
 	//
 	// Now move to the target
 	//
+
+	if(bMove == false){
+		return; 
+	}
+
 	if (target < spot) {
 		this->_arm->Set(speed);
 	} else if (target > spot){
@@ -296,7 +304,7 @@ void Arm::Goto(int target, int spot, double w_target) {
 	}
 }	
 
-void Wrist::Tuck(int target, int spot){
+bool Wrist::Tuck(int target, int spot){
 	char buf[1024];
 	double speed;
 
@@ -310,11 +318,20 @@ void Wrist::Tuck(int target, int spot){
 		speed = GRAB_WRIST_SPEED;
 	}
 
+	if(abs(target-spot) <= .5){
+		this->_wrist->Set(0);
+		return true;
+	}
+
+	
+
 	if (this->GetEncoderValue()>target){
 		this->_wrist->Set(-speed);
 	} else {
 		this->_wrist->Set(0.0);
 	}
+	return false; 
+	
 }
 
 void Wrist::Move(double vector){
@@ -388,3 +405,23 @@ double Wrist::GetEncoderValue(){
 Wrist* Arm::GetWrist(){
 	return this->wrist;
 }
+void Wrist::Stay(double spot){
+	double difference = spot - this->GetEncoderValue();
+	double speed = difference * .2;
+	if(speed > WRIST_HOLD_CAP){
+		speed = WRIST_HOLD_CAP;
+	}
+	_wrist->Set(speed); 
+	return;
+}
+
+void Arm::Stay(int spot, int current){
+	int difference = spot - current;
+	double speed = (int)difference * .04;
+	if(speed > WRIST_HOLD_CAP){
+		speed = WRIST_HOLD_CAP;
+	}
+	_arm->Set(-speed); 
+	return;
+}
+
