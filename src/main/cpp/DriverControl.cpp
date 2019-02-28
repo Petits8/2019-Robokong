@@ -6,7 +6,7 @@
 
 DriverControl::DriverControl(bool bJoystick){
 	this->bJoystick = bJoystick;
-	for(int i=0; i<2; ++i){
+	for(int i=0; i<3; ++i){
 		for(int j=0; j<11; ++j){
 			this->buttons[i][j] = false;
 		}
@@ -129,18 +129,21 @@ void DriverControl::Update(){
 		} 
 
 		//Checks if R_Trigger is pressed and toggles pneumatic claw
-		if(this->buttons[1][0] == false && this->r_joystick.GetRawButton(1)){
+		if(this->buttons[2][8] == false && this->d_station_controller.GetRawButton(9)){
 			ToggleClaw();
-			frc::DriverStation::ReportError("BUTTON");
+			//frc::DriverStation::ReportError("BUTTON");
 		}
 
 		//Updating Array
-		for(int i=0; i<2; i++){
+
+		for(int i=0; i<3; i++){
 			for(int j=0; j<11; j++){
 				if(i==0){
 					this->buttons[i][j] = this->l_joystick.GetRawButton(j+1);
 				} else if(i==1){
 					this->buttons[i][j] = this->r_joystick.GetRawButton(j+1);
+				} else if(i == 2){
+					this->buttons[i][j] = this->d_station_controller.GetRawButton(j+1);
 				}
 			}
 		}
@@ -230,10 +233,10 @@ void Arm::Goto(int target, int spot, double w_target) {
 	// Once we get to the target, move the wrist into position
 	//
 	if (error<2) {
-		sprintf(buf, "WRIST1 %f %f",w_target, this->GetWrist()->GetEncoderValue());
+		//sprintf(buf, "WRIST1 %f %f",w_target, this->GetWrist()->GetEncoderValue());
 //		frc::DriverStation::ReportError(buf);
-		sprintf(buf, "WRIST2: T:%d S:%d Sp: %f E:%d %f", target, spot, speed, error, HoldSpeed);
-		frc::DriverStation::ReportError(buf);
+		//sprintf(buf, "WRIST2: T:%d S:%d Sp: %f E:%d %f", target, spot, speed, error, HoldSpeed);
+		//frc::DriverStation::ReportError(buf);
 		
 		this->timer->Start();
 		this->_arm->Set(HoldSpeed);
@@ -326,7 +329,7 @@ bool Wrist::Tuck(int target, int spot){
 	
 
 	if (this->GetEncoderValue()>target){
-		this->_wrist->Set(-speed);
+		this->_wrist->Set(-(speed + .1));
 	} else {
 		this->_wrist->Set(0.0);
 	}
@@ -425,3 +428,65 @@ void Arm::Stay(int spot, int current){
 	return;
 }
 
+void Arm::_Goto(int target, int spot, double w_target){
+	bool bMove = true;
+	if(target != this->prev_target){
+
+		if(spot < GRAB_CUTOFF && spot > GRAB_CUTOFF-GRAB_ZONE_OFFSET){
+			frc::DriverStation::ReportError("GRAB ZONE");
+		} else if(wrist->Tuck(0, this->GetWrist()->GetEncoderValue())){
+			this->prev_target = target;
+		} else{
+			bMove = false; 
+		}
+	}
+	if(bMove){
+		_Stay(target, spot);
+		this->GetWrist()->_Stay(w_target);
+	}
+
+}
+
+void Wrist::_Stay(double spot){
+	double difference = spot - this->GetEncoderValue();
+	double speed = difference * .02;
+	if(speed > .07){
+		speed = .07;
+	}
+	_wrist->Set(speed); 
+	return;
+}
+
+void Arm::_Stay(int spot, int current){
+	int difference = spot - current;
+	double speed = (int)difference * .06;
+	if(speed > .7){
+		speed = .7;
+	}
+	_arm->Set(-speed); 
+	return;
+}
+
+double Arm::getMaxAngle_W(int Value_A){
+	char buf[1024];
+	buf[0] = 0;
+	double Angle_A = ((double)Value_A/600.0) * 2 * M_PI;
+	Angle_A -= M_PI/2;
+	
+	if(Angle_A >= M_PI/2 && Angle_A <= M_PI){
+		Angle_A = M_PI - Angle_A;
+	} else if(Angle_A>=M_PI && Angle_A<=1.5*M_PI){
+		Angle_A -= M_PI;
+	} else if(Angle_A >= 1.5*M_PI && Angle_A <= 2*M_PI){
+		Angle_A = 2*M_PI - Angle_A;
+	}
+	if((WRIST_L + ARM_L*cos(Angle_A))>= MAX_L){
+	double MAX_W = acos((MAX_L - ARM_L*cos(Angle_A))/WRIST_L);
+
+	//sprintf(buf, "MAX_W: %f : ANGLE_A: %f : CONDITIONAL_CALC: %f : MAX_CALC: %f : TICK: %i", MAX_W, Angle_A, (WRIST_L + ARM_L*cos(Angle_A)), (MAX_L - ARM_L*cos(Angle_A))/WRIST_L, Value_A);
+	//frc::DriverStation::ReportError(buf);
+
+	} else{
+		return 0.0;
+	}
+}

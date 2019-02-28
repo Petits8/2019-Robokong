@@ -15,9 +15,10 @@
 #include <SpeedControllerGroup.h>
 #include <Drive/DifferentialDrive.h>
 #include <DriverControl.h>
-#include <CameraServer.h>
+//#include <frc/CameraServer.h>
 #include <VisionProcessing.h>
 #include <CAN.h>
+#define M_PI    3.14159265358979323846
 
 #define LIFTMOTOR 4
 #define BGRAB 8
@@ -74,7 +75,11 @@ void Robot::RobotInit() {
 	//m_chooser.AddObject(kAutoNameCustom, kAutoNameCustom);
 	frc::SmartDashboard::PutData("Auto Modes", &m_chooser);
 
-	
+	arm->GetWrist()->Init();
+	pShoulderEncoder->Zero(); 
+	//frc::CameraServer cmr;
+	//cmr.StartAutomaticCapture(0);
+	//cmr.StartAutomaticCapture(1);
 
 	//std::thread visionThread(VisionThread);
     //visionThread.detach();
@@ -121,13 +126,10 @@ void Robot::OperatorControl() {
 	int arm_last;
 	int roller_state = 0;
 	int d_joystick_latch = 0;
+	double maxAngle_w = 0.0;
+	double angle_w = 0.0;
 	
 	while (IsOperatorControl() && IsEnabled()) {
-		if (!bInitLatch){
-			arm->GetWrist()->Init();
-			pShoulderEncoder->Zero();
-			bInitLatch = true; 
-		}
 		pShoulderEncoder->Update();
 		pDriverControl->Update();
 			
@@ -152,6 +154,22 @@ void Robot::OperatorControl() {
 				arm->Goto(STOP_LOW, pShoulderEncoder->Get(), WRIST_LOW);
 				bButtonReleaseLatch = false;
 				break;
+			case 4:
+				arm->_Goto(STOP_LOW_H, pShoulderEncoder->Get(), WRIST_LOW_H);
+				bButtonReleaseLatch = false;
+				if (pDriverControl->getStationButton(1) && pDriverControl->getStationButton(1)){
+					arm->GetWrist()->Init();
+					pShoulderEncoder->Zero(); 
+				}
+				break;
+			case 3:
+				arm->_Goto(STOP_CENTER_H, pShoulderEncoder->Get(), WRIST_CENTER_H);
+				bButtonReleaseLatch = false;
+				break;
+			case 2: 
+				arm->_Goto(STOP_TOP_H, pShoulderEncoder->Get(), WRIST_TOP_H);
+				bButtonReleaseLatch = false;
+				break;
 			case 10:
 				
 				if(abs(pDriverControl->d_station_controller.GetX()) > .1 || abs(pDriverControl->d_station_controller.GetY()) > .1){
@@ -167,6 +185,18 @@ void Robot::OperatorControl() {
 						}
 					arm->Stay(arm_last, pShoulderEncoder->Get());
 					arm->GetWrist()->Stay(w_last);
+				maxAngle_w = arm->getMaxAngle_W(pShoulderEncoder->Get());
+				if(maxAngle_w > 0.0 && maxAngle_w){
+					angle_w = ((arm->GetWrist()->Get() - WRIST_X_AXIS)/WRIST_FULL_ROT)*2*M_PI;
+					if(angle_w > maxAngle_w){
+						arm->GetWrist()->_Stay(WRIST_X_AXIS+maxAngle_w);
+
+					} else if(angle_w < -maxAngle_w){
+						arm->GetWrist()->_Stay(WRIST_X_AXIS-maxAngle_w);
+					}
+					sprintf(buf, "maxAngle_w: %f : angle_w : %f", maxAngle_w, angle_w);
+				}
+				frc::DriverStation::ReportError(buf);
 				}
 				break;
 			default:
@@ -177,27 +207,13 @@ void Robot::OperatorControl() {
 					arm_last = pShoulderEncoder->Get();
 					bButtonReleaseLatch = true;
 				}
-				arm->Stay(arm_last, pShoulderEncoder->Get());
-				arm->GetWrist()->Stay(w_last);
+				//arm->Stay(arm_last, pShoulderEncoder->Get());
+				//arm->GetWrist()->Stay(w_last);
 
 				M_INTAKEARM.Set(pDriverControl->d_station_controller.GetX() * -.7);
 		
 				double d_joy_y = pDriverControl->d_station_controller.GetY();
-				if(d_joy_y == 1.0 && d_joystick_latch != 1){
-					if(roller_state < 1){
-						roller_state += 1;
-					}
-					d_joystick_latch = 1;
-				} else if(d_joy_y == -1.0 && d_joystick_latch != -1){
-					if(roller_state > -1){
-						roller_state -= 1;
-					}
-					d_joystick_latch = -1;
-				} else if(d_joy_y != 1.0 && d_joy_y != -1.0){
-					d_joystick_latch = 0;
-				}
-				
-				M_INTAKEROLLER.Set(roller_state * .7);
+				M_INTAKEROLLER.Set(d_joy_y * .7);
 
 
 				break;
@@ -215,10 +231,10 @@ void Robot::OperatorControl() {
 //		sprintf(buf, "Y: %f - X: %f", -pDriverControl->GetVectorValue(Y_AXIS), pDriverControl->GetVectorValue(X_AXIS));
 //		sprintf(buf, "%d", pDriverControl->getStationButton(3));
 		//sprintf(buf, "Shoulder: %d %d", pShoulderEncoder->Get(), pDriverControl->getStationButton());
-		if(pDriverControl->GetButtonValue(R_STICK, 11)){
-			 sprintf(buf, "WRIST: %f : ARM: %i", arm->GetWrist()->GetEncoderValue(), pShoulderEncoder->Get());
-			 frc::DriverStation::ReportError(buf);
-		}
+		
+			 //sprintf(buf, "WRIST: %f : ARM: %i", arm->GetWrist()->GetEncoderValue(), pShoulderEncoder->Get());
+			 
+		
 
 		//Lift->Set(-pDriverControl->GetLiftValue());
 
@@ -230,12 +246,10 @@ void Robot::OperatorControl() {
 		
 		frc::Wait(0.005);
 	}
-	bInitLatch = false;
+	
 }
 
-void DriveStraight(){
 
-}
 
 /**
  * Runs during test mode

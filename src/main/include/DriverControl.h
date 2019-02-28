@@ -26,6 +26,8 @@
 #include <Spark.h>
 #include <rev/SparkMax.h>
 #include <rev/CANSparkMax.h>
+#include <math.h>  
+#include <iostream>
 
 
 #define PWRVEL 				5
@@ -92,15 +94,30 @@
 #define WRIST_CENTER 		6.404757
 #define WRIST_LOW 			6.309519
 
-#define WRIST_HOLD_CAP 	.3
-#define ARM_HOLD_CAP	.3
+#define STOP_TOP_H 			278
+#define STOP_CENTER_H 		96
+#define STOP_LOW_H 			53
+
+#define WRIST_TOP_H			17.88
+#define WRIST_CENTER_H 		4.57
+#define WRIST_LOW_H 		5.571
+
+#define WRIST_HOLD_CAP 		.3
+#define ARM_HOLD_CAP		.3
+
+#define ARM_L				31
+#define WRIST_L				23
+#define MAX_L  				46
+#define WRIST_X_AXIS		4.9523
+#define WRIST_FULL_ROT		15.0467*2
+
 
 class DriverControl {
 private:
 	
 	bool bJoystick;
 	double controllerVector[2][3];
-	bool buttons[2][11];
+	bool buttons[3][11];
 	double divider = 1;
 	frc::DoubleSolenoid clawPiston{0, 1};
 	frc::Timer *timer;
@@ -147,6 +164,7 @@ public:
 	void Zero();
 	double GetEncoderValue();
 	void Stay(double spot);
+	void _Stay(double spot);
 };
 
 class Arm {
@@ -169,10 +187,14 @@ public:
 	
 	void Stay(int spot, int current);
 	void Move(double vector);
-	void Goto(int target, int spot, double w_target);
-	Wrist* GetWrist();
-};
 
+	void _Stay(int spot, int current);
+
+	void Goto(int target, int spot, double w_target);
+	void _Goto(int target, int spot, double w_target);
+	Wrist* GetWrist();
+	double getMaxAngle_W(int Value_A);
+};
 
 
 
