@@ -15,9 +15,13 @@
 #include <SpeedControllerGroup.h>
 #include <Drive/DifferentialDrive.h>
 #include <DriverControl.h>
-//#include <frc/CameraServer.h>
+#include <CameraServer.h>
 #include <VisionProcessing.h>
 #include <CAN.h>
+
+using namespace frc;
+using namespace cs;
+
 #define M_PI    3.14159265358979323846
 
 #define LIFTMOTOR 4
@@ -67,6 +71,10 @@ Robot::Robot() {
 	// Note SmartDashboard is not initialized here, wait until
 	// RobotInit to make SmartDashboard calls
 	m_robotDrive.SetExpiration(0.1);
+
+	m_cameraOne = UsbCamera("Usb Camera 1", 0);
+	m_cameraTwo = UsbCamera("Usb Camera 2", 1);
+	m_videoSink = CameraServer::GetInstance()->AddServer("serve_Camera", 1811);
 }
 
 void Robot::RobotInit() {
@@ -77,8 +85,8 @@ void Robot::RobotInit() {
 
 	arm->GetWrist()->Init();
 	pShoulderEncoder->Zero(); 
-	//frc::CameraServer cmr;
-	//cmr.StartAutomaticCapture(0);
+
+	.StartAutomaticCapture(0);
 	//cmr.StartAutomaticCapture(1);
 
 	//std::thread visionThread(VisionThread);
@@ -174,7 +182,7 @@ void Robot::OperatorControl() {
 				
 				if(abs(pDriverControl->d_station_controller.GetX()) > .1 || abs(pDriverControl->d_station_controller.GetY()) > .1){
 					arm->Move(pDriverControl->d_station_controller.GetX() * .5);
-					arm->GetWrist()->Move(pDriverControl->d_station_controller.GetY() * .1);
+					
 					bButtonReleaseLatch = false;
 				} else{
 						if(!bButtonReleaseLatch){
@@ -188,13 +196,17 @@ void Robot::OperatorControl() {
 				maxAngle_w = arm->getMaxAngle_W(pShoulderEncoder->Get());
 				if(maxAngle_w > 0.0 && maxAngle_w){
 					angle_w = ((arm->GetWrist()->Get() - WRIST_X_AXIS)/WRIST_FULL_ROT)*2*M_PI;
-					if(angle_w > maxAngle_w){
+					/*if(angle_w > maxAngle_w){
 						arm->GetWrist()->_Stay(WRIST_X_AXIS+maxAngle_w);
 
 					} else if(angle_w < -maxAngle_w){
 						arm->GetWrist()->_Stay(WRIST_X_AXIS-maxAngle_w);
 					}
 					sprintf(buf, "maxAngle_w: %f : angle_w : %f", maxAngle_w, angle_w);
+					*/
+					
+				} else{
+					arm->GetWrist()->Move(pDriverControl->d_station_controller.GetY() * .1);
 				}
 				frc::DriverStation::ReportError(buf);
 				}

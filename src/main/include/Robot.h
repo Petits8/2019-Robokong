@@ -10,11 +10,14 @@
 #include <string>
 #include "EncoderPair.h"
 
-#include <Drive/DifferentialDrive.h>
-#include <Joystick.h>
-#include <SampleRobot.h>
-#include <SmartDashboard/SendableChooser.h>
-#include <Spark.h>
+#include <frc/Drive/DifferentialDrive.h>
+#include <frc/Joystick.h>
+#include <frc/SampleRobot.h>
+#include <frc/SmartDashboard/SendableChooser.h>
+#include <frc/Spark.h>
+
+using namespace frc;
+using namespace cs;
 
 /**
  * This is a demo program showing the use of the DifferentialDrive class.
@@ -40,7 +43,10 @@ public:
 private:
 	// Robot drive system
 
-
+	UsbCamera m_cameraOne;
+	UsbCamera m_cameraTwo;
+	VideoSink m_videoSink;
+	CameraServer m_cameraServer;
 
 
 
